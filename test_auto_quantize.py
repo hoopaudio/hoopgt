@@ -1,7 +1,5 @@
 """
-🏀 Test Auto-Selection of Quantization Methods
-
-Demonstrates how HoopGT automatically chooses the best quantization method.
+Test Auto-Selection of Quantization Methods
 """
 
 import torch
@@ -55,29 +53,29 @@ def test_auto_quantization_selection():
     # Test CNN model
     cnn_model = CNNModel()
     cnn_method = quantizer.get_recommended_method(cnn_model, target)
-    print(f"🖼️  CNN Model → {cnn_method} quantization")
+    print(f"CNN Model → {cnn_method} quantization")
     
     # Test RNN model  
     rnn_model = RNNModel()
     rnn_method = quantizer.get_recommended_method(rnn_model, target)
-    print(f"🔄 RNN Model → {rnn_method} quantization")
+    print(f"RNN Model → {rnn_method} quantization")
     
     # Test simple model
     simple_model = SimpleModel()
     simple_method = quantizer.get_recommended_method(simple_model, target)
-    print(f"➡️  Simple Model → {simple_method} quantization")
+    print(f"Simple Model → {simple_method} quantization")
     
     # Verify expectations
     assert cnn_method == "static", f"CNN should use static, got {cnn_method}"
     assert rnn_method == "dynamic", f"RNN should use dynamic, got {rnn_method}"
     assert simple_method == "dynamic", f"Simple should use dynamic, got {simple_method}"
     
-    print("✅ All auto-selection tests passed!")
+    print("All auto-selection tests passed!")
     return True
 
 
 if __name__ == "__main__":
-    print("🧪 Testing automatic quantization method selection...")
+    print("Testing automatic quantization method selection...")
     test_auto_quantization_selection()
-    print("🎉 Auto-selection works perfectly!")
-    print("\n💡 Users can simply use --quantize and HoopGT will choose the best method!") 
+    print("Auto-selection works perfectly!")
+    print("\nUsers can simply use --quantize and HoopGT will choose the best method!")

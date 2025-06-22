@@ -30,19 +30,19 @@ class OptimizationEngine:
             - The name of the quantization method used ('dynamic' or 'static').
             - A dictionary of quantization statistics.
         """
-        print("⚡️ Applying quantization...")
+        print("Applying quantization...")
         quantizer = HoopQuantizer()
         # Quantization is a CPU-bound operation
         model_cpu = model.cpu()
 
         best_method = quantizer.get_recommended_method(model_cpu, target.value)
-        print(f"🧠 Auto-selected quantization method: {best_method}")
+        print(f"Auto-selected quantization method: {best_method}")
 
         if best_method == "dynamic":
             quantized_model, _ = quantizer.quantize_dynamic(model_cpu, target.value)
         elif best_method == "static":
             print(
-                "⚠️  Static quantization calibration data not yet implemented. Using model's current state."
+                "Static quantization calibration data not yet implemented. Using model's current state."
             )
             quantized_model, _ = quantizer.quantize_static(
                 model_cpu, target=target.value
@@ -70,7 +70,7 @@ class OptimizationEngine:
         Returns:
             A dictionary containing the results and statistics of the optimization.
         """
-        print(f"⚙️  Initializing optimization engine for target: {target.value}")
+        print(f"Initializing optimization engine for target: {target.value}")
         
         model, device = load_model_for_target(model_path, target)
 
@@ -96,9 +96,9 @@ class OptimizationEngine:
 
         # 4. Save the final model if an output path is provided
         if output_path:
-            print(f"💾 Saving optimized model to: {output_path}")
+            print(f"Saving optimized model to: {output_path}")
             torch.save(final_model.state_dict(), output_path)
             results["output_path"] = output_path
         
-        print("✅ Engine run completed.")
+        print("Engine run completed.")
         return results 

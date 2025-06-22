@@ -86,7 +86,7 @@ class HoopQuantizer:
         """
         Dynamic quantization - best for transformers/LSTM
         """
-        print(f"🚀 Dynamic quantization for {target}")
+        print(f"Dynamic quantization for {target}")
         config = self.get_quantization_config(target, "dynamic")
 
         # Set backend
@@ -99,7 +99,7 @@ class HoopQuantizer:
             dtype=config["dtype"],
         )
 
-        print(f"✅ Dynamic quantization completed using {config['backend']} backend")
+        print(f"Dynamic quantization completed using {config['backend']} backend")
         return quantized_model, target
 
     def quantize_static(
@@ -108,7 +108,7 @@ class HoopQuantizer:
         """
         Static quantization - best for CNNs
         """
-        print(f"🚀 Static quantization for {target}")
+        print(f"Static quantization for {target}")
         config = self.get_quantization_config(target, "static")
 
         # Set backend
@@ -120,7 +120,7 @@ class HoopQuantizer:
 
         # Calibration (if data provided)
         if calibration_data is not None:
-            print("📊 Running calibration...")
+            print("Running calibration...")
             prepared.eval()
             with torch.no_grad():
                 if hasattr(calibration_data, "__iter__"):
@@ -132,7 +132,7 @@ class HoopQuantizer:
         # Convert to quantized model
         quantized_model = quant.convert(prepared, inplace=False)
 
-        print(f"✅ Static quantization completed using {config['backend']} backend")
+        print(f"Static quantization completed using {config['backend']} backend")
         return quantized_model, target
 
     def get_model_size_reduction(

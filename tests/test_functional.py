@@ -1,5 +1,5 @@
 """
-🏀 HoopGT Functional Tests
+HoopGT Functional Tests
 
 Tests for complete workflows and CLI functionality.
 """

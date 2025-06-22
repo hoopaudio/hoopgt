@@ -1,7 +1,7 @@
 [project]
 name = "hoopgt"
 version = "0.1.0"
-description = "🏀 HoopGT SDK - Model Optimization Platform"
+description = "HoopGT SDK - Model Optimization Platform"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [

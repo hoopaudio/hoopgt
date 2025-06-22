@@ -5,6 +5,7 @@ from rich.table import Table
 from typing import Optional
 from .types import TargetHardware, OptimizationLevel
 from .engine import OptimizationEngine
+from . import __version__
 
 console = Console()
 app = typer.Typer(
@@ -12,6 +13,27 @@ app = typer.Typer(
     help="🏀 HoopGT SDK - Model Optimization Platform",
     rich_markup_mode="rich",
 )
+
+
+@app.callback(
+    context_settings={"help_option_names": ["-h", "--help"]},
+    invoke_without_command=True,
+)
+def main(
+    ctx: typer.Context,
+    version: bool = typer.Option(
+        None,
+        "--version",
+        "-v",
+        is_eager=True,
+        help="Show version and exit.",
+    ),
+):
+    """
+    HoopGT SDK - Model Optimization Platform
+    """
+    if version:
+        rprint(f"HoopGT Version: {__version__}")
 
 
 @app.command()
@@ -31,7 +53,7 @@ def optimize(
     ),
 ):
     """
-    🔧 Optimize a model for a specific target hardware.
+    Optimize a model for a specific target hardware.
     """
     rprint(f"[bold green]🏀 HoopGT Optimizer[/bold green]")
     table = Table(box=None, show_header=False)
@@ -53,7 +75,7 @@ def optimize(
             output_path=output,
         )
 
-        rprint("\n[bold green]📊 Optimization Results[/bold green]")
+        rprint("\n[bold green]Optimization Results[/bold green]")
         results_table = Table(show_header=False)
         results_table.add_column(style="cyan")
         results_table.add_column()
@@ -85,10 +107,10 @@ def optimize(
             results_table.add_row("Saved To", "Not saved (no --output path provided)")
 
         console.print(results_table)
-        rprint("\n[bold green]🎉 Optimization complete![/bold green]")
+        rprint("\n[bold green]Optimization complete![/bold green]")
 
     except Exception as e:
-        rprint(f"\n[bold red]❌ An error occurred during optimization:[/bold red]")
+        rprint(f"\n[bold red]An error occurred during optimization:[/bold red]")
         rprint(f"[red]{e}[/red]")
         raise typer.Exit(code=1)
 
@@ -102,7 +124,7 @@ def deploy(
     ),
 ):
     """
-    🚀 Deploy a model (placeholder for your implementation).
+    Deploy a model (placeholder for your implementation).
     """
     rprint(f"[bold green]🏀 HoopGT Deployer[/bold green]")
     rprint(f"[blue]Model:[/blue] {model_name}")
@@ -110,14 +132,14 @@ def deploy(
     rprint(f"[blue]Port:[/blue] {port}")
 
     # TODO: Add your deployment logic here
-    rprint("[yellow]⚠️  Deployment logic not implemented yet[/yellow]")
+    rprint("[yellow]Deployment logic not implemented yet[/yellow]")
     rprint("[dim]This is a boilerplate - add your implementation![/dim]")
 
 
-@app.command()
-def list():
+@app.command(name="list")
+def list_models():
     """
-    📋 List available models (placeholder for your implementation).
+    List available models (placeholder for your implementation).
     """
     rprint("[bold green]🏀 Available Models[/bold green]")
 
@@ -143,7 +165,7 @@ def list():
 @app.command()
 def info():
     """
-    ℹ️  Show system information and supported targets.
+    Show system information and supported targets.
     """
     rprint("[bold green]🏀 HoopGT System Info[/bold green]")
 
@@ -173,7 +195,7 @@ def info():
     console.print(table)
 
     # Show all supported options
-    rprint("\n[bold green]📋 Supported Options[/bold green]")
+    rprint("\n[bold green]Supported Options[/bold green]")
 
     targets_table = Table(title="Target Hardware")
     targets_table.add_column("Target", style="cyan")

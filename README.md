@@ -1,4 +1,6 @@
-# 🏀 HoopGT SDK 
+# HoopGT SDK
+
+> Your description here
 
 ## Installation
 

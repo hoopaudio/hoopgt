@@ -1,13 +1,13 @@
 """
-🏀 HoopGT Types
+HoopGT Types
 
-Type definitions for HoopGT SDK.
+This file defines shared data types and enums used across the HoopGT platform.
 """
 
 from enum import Enum
 
 
-class TargetHardware(Enum):
+class TargetHardware(str, Enum):
     """Supported target hardware platforms"""
     APPLE_SILICON = "apple-silicon"
     X86_SERVER = "x86-server"

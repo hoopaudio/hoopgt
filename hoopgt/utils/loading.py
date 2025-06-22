@@ -1,5 +1,5 @@
 """
-🏀 HoopGT Model Loading Utilities
+HoopGT Model Loading Utilities
 """
 
 import torch
@@ -35,16 +35,16 @@ def load_model_for_target(
     else:
         device = "cpu"
 
-    print(f"🎯 Preparing to load model for target: {target_hardware.value} on device: {device}")
+    print(f"Preparing to load model for target: {target_hardware.value} on device: {device}")
 
     try:
         model = torch.load(model_path, map_location=device, weights_only=True)
-        print("✅ Model loaded safely (weights_only=True).")
+        print("Model loaded safely (weights_only=True).")
     except Exception:
         model = torch.load(model_path, map_location=device, weights_only=False)
-        print("⚠️  Could not load weights only. Loaded full model (less safe).")
+        print("Could not load weights only. Loaded full model (less safe).")
 
     model.eval()
-    print(f"✅ Model '{model_path}' loaded and in evaluation mode.")
+    print(f"Model '{model_path}' loaded and in evaluation mode.")
 
     return model, device 

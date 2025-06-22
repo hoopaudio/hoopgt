@@ -68,7 +68,7 @@ def test_dynamic_quantization():
         output = quantized_model(test_input)
         assert output.shape == (1, 1)
     
-    print("✅ Dynamic quantization test passed!")
+    print("Dynamic quantization test passed!")
 
 
 def test_model_size_reduction():
@@ -89,7 +89,7 @@ def test_model_size_reduction():
     assert stats["reduction_ratio"] > 1.0
     assert stats["size_savings_percent"] > 0
     
-    print(f"📊 Size reduction: {stats['reduction_ratio']:.2f}x")
+    print(f"Size reduction: {stats['reduction_ratio']:.2f}x")
 
 
 def test_backend_configuration():
@@ -104,14 +104,14 @@ def test_backend_configuration():
     config = quantizer.get_quantization_config("x86-server", "dynamic")
     assert config["backend"] == "fbgemm"
     
-    print("✅ Backend configuration test passed!")
+    print("Backend configuration test passed!")
 
 
 if __name__ == "__main__":
-    print("🧪 Running HoopGT quantization tests...")
+    print("Running HoopGT quantization tests...")
     test_quantizer_initialization()
     test_quantization_config()
     test_dynamic_quantization()
     test_model_size_reduction()
     test_backend_configuration()
-    print("🎉 All quantization tests passed!") 
+    print("All quantization tests passed!") 

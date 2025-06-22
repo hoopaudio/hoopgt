@@ -1,5 +1,5 @@
 """
-🏀 HoopGT SDK - Model Optimization Platform
+HoopGT SDK - Model Optimization Platform
 
 """
 
