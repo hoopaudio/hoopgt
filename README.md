@@ -1,6 +1,6 @@
 # HoopGT SDK
 
-> Your description here
+> Data center models. Now on the edge.
 
 ## Installation
 
