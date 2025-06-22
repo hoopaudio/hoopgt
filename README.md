@@ -28,27 +28,3 @@ hoopgt list
 # Show system info
 hoopgt info
 ```
-
-## Development
-
-This is a minimal boilerplate. Add your implementation in:
-
-- `hoopgt/cli.py` - Main CLI commands
-- `hoopgt/` - Add new modules as needed
-
-## Commands Structure
-
-- `optimize` - Model optimization logic
-- `deploy` - Model deployment logic  
-- `list` - Model registry/listing
-- `info` - System information
-
-## TODO
-
-- [ ] Add optimization implementation
-- [ ] Add deployment implementation
-- [ ] Add model registry
-- [ ] Add hardware detection
-- [ ] Add quantization logic
-
-Start building your MVP! 🚀

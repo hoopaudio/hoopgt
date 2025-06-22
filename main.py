@@ -1,7 +1,7 @@
 """
 🏀 HoopGT SDK - Main Entry Point
 
-Lightweight boilerplate for model optimization tools.
+Boilerplate for model optimization tools.
 """
 
 from hoopgt.cli import app
