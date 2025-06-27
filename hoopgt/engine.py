@@ -8,7 +8,7 @@ import torch
 from typing import Dict, Any, Optional, Tuple
 
 from .types import TargetHardware, OptimizationLevel
-from .quantize import HoopQuantizer
+from .legacy_quantize import HoopQuantizer
 from .utils.loading import load_model_for_target
 
 class OptimizationEngine:
