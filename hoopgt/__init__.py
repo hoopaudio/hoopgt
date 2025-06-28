@@ -1,52 +1,16 @@
 """
 HoopGT SDK - Model Optimization Platform
 
-Hardware-optimized AI model optimization with pluggable algorithms.
+Clean, production-ready AI model optimization for edge devices.
 """
 
-__version__ = "0.1.0"
+# from hoopgt.config.hoopgt_config import HoopGTConfig
+# from hoopgt.engine.pruna_model import HoopGTModel
+# from hoopgt.optimize import optimize 
+# from hoopgt.algorithms import HOOPGT_ALGORITHMS
+from importlib_metadata import version
 
-# Core engine and optimization
-from .engine import OptimizationEngine
-from .quantization_engine import QuantizationEngine
+__version__ = version(__name__)
 
-# Legacy MVP quantizer (for backward compatibility) - now powered by plugin architecture
-from .legacy_quantize import HoopQuantizer
-
-# Configuration
-from .config import OptimizationConfig
-
-# Types and enums
-from .types import TargetHardware, OptimizationLevel, QuantizationMethod
-
-# Utilities
-from .utils.loading import load_model_for_target
-
-# Algorithm base classes (for extending)
-from .algorithms.hoopgt_base import HoopGTAlgorithmBase, HoopGTQuantizerBase
-
-__all__ = [
-    "__version__",
-    
-    # Core engines
-    "OptimizationEngine",
-    "QuantizationEngine",
-    
-    # Legacy (backward compatibility)
-    "HoopQuantizer",
-    
-    # Configuration
-    "OptimizationConfig",
-    
-    # Types
-    "TargetHardware",
-    "OptimizationLevel", 
-    "QuantizationMethod",
-    
-    # Utilities
-    "load_model_for_target",
-    
-    # Base classes for extending
-    "HoopGTAlgorithmBase",
-    "HoopGTQuantizerBase",
-] 
+# __all__ = ["HoopGTConfig", "HoopGTModel", "optimize", "HOOPGT_ALGORITHMS", "__version__"]
+__all__ = ["__version__"]

@@ -1,33 +1,24 @@
 """
 🏀 HoopGT Quantization Algorithms
 
-Hardware-optimized quantization implementations including the original MVP algorithms.
+Clean, production-ready quantization implementations for edge AI.
 """
 
 from __future__ import annotations
 
 from ..hoopgt_base import HoopGTQuantizerBase
-from .torch_dynamic import TorchDynamicQuantizer
-from .mvp_dynamic import MVPDynamicQuantizer
-from .mvp_static import MVPStaticQuantizer
-from .mvp_selector import MVPAlgorithmSelector
+from .dynamic_quantization import DynamicQuantizer
+from .static_quantization import StaticQuantizer
 
 # Registry of available quantization algorithms
 QUANTIZATION_ALGORITHMS = {
-    "torch_dynamic": TorchDynamicQuantizer,
-    "mvp_dynamic": MVPDynamicQuantizer,
-    "mvp_static": MVPStaticQuantizer,
+    "dynamic": DynamicQuantizer,
+    "static": StaticQuantizer,
 }
-
-# Create the MVP selector instance for intelligent algorithm selection
-mvp_selector = MVPAlgorithmSelector()
 
 __all__ = [
     "HoopGTQuantizerBase", 
-    "TorchDynamicQuantizer",
-    "MVPDynamicQuantizer",
-    "MVPStaticQuantizer", 
-    "MVPAlgorithmSelector",
+    "DynamicQuantizer",
+    "StaticQuantizer",
     "QUANTIZATION_ALGORITHMS",
-    "mvp_selector"
 ]

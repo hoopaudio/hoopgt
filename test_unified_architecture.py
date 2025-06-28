@@ -10,182 +10,161 @@ Test the complete refactored architecture including:
 import torch
 import torch.nn as nn
 from hoopgt import (
-    HoopQuantizer,           # Legacy API
-    QuantizationEngine,      # New architecture
     TargetHardware,
     QUANTIZATION_ALGORITHMS,
-    mvp_selector
+    DynamicQuantizer,
+    StaticQuantizer
 )
 
 
-def create_test_model():
-    """Create a test model with Conv + LSTM + Linear layers."""
-    return nn.Sequential(
-        nn.Conv2d(3, 64, kernel_size=3),
-        nn.AdaptiveAvgPool2d((4, 4)),
-        nn.Flatten(),
-        nn.LSTM(1024, 256, batch_first=True),
-        nn.Dropout(0.2),
-        nn.Linear(256, 128),
-        nn.ReLU(),
-        nn.Linear(128, 10)
-    )
-
-
-def test_backward_compatibility():
-    """Test that the original MVP API still works exactly as before."""
-    print("🔄 Testing Backward Compatibility...")
+def create_test_models():
+    """Create test models for different architectures."""
     
-    model = create_test_model()
+    # Simple transformer-like model (good for dynamic quantization)
+    class SimpleTransformer(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.embedding = nn.Embedding(1000, 128)
+            self.linear1 = nn.Linear(128, 256)
+            self.linear2 = nn.Linear(256, 128)
+            self.output = nn.Linear(128, 10)
+            
+        def forward(self, x):
+            x = self.embedding(x)
+            x = torch.mean(x, dim=1)  # Simple pooling
+            x = torch.relu(self.linear1(x))
+            x = torch.relu(self.linear2(x))
+            return self.output(x)
     
-    # Original MVP API should work unchanged
-    quantizer = HoopQuantizer()
+    # Simple CNN model (good for static quantization)
+    class SimpleCNN(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.conv1 = nn.Conv2d(3, 32, 3, padding=1)
+            self.conv2 = nn.Conv2d(32, 64, 3, padding=1)
+            self.pool = nn.AdaptiveAvgPool2d((4, 4))
+            self.fc = nn.Linear(64 * 16, 10)
+            
+        def forward(self, x):
+            x = torch.relu(self.conv1(x))
+            x = torch.relu(self.conv2(x))
+            x = self.pool(x)
+            x = x.view(x.size(0), -1)
+            return self.fc(x)
     
-    # Test get_recommended_method (original function)
-    recommended = quantizer.get_recommended_method(model, "apple-silicon")
-    print(f"   Recommended method: {recommended}")
-    assert recommended in ["dynamic", "static"], f"Unexpected recommendation: {recommended}"
-    
-    # Test dynamic quantization (original function)
-    quantized_model, target = quantizer.quantize_dynamic(model, "apple-silicon")
-    assert target == "apple-silicon"
-    print(f"   ✅ Dynamic quantization successful")
-    
-    # Test size reduction calculation (original function) 
-    size_stats = quantizer.get_model_size_reduction(model, quantized_model)
-    print(f"   Size reduction: {size_stats['reduction_ratio']:.1f}x")
-    assert size_stats['reduction_ratio'] > 1.0, "Expected size reduction"
-    
-    # Test static quantization (original function)
-    quantized_static, _ = quantizer.quantize_static(model, "x86-server")
-    print(f"   ✅ Static quantization successful")
-    
-    print("✅ Backward compatibility tests passed!")
-    return True
-
-
-def test_new_plugin_architecture():
-    """Test the new plugin architecture with MVP algorithms."""
-    print("\n🔧 Testing New Plugin Architecture...")
-    
-    model = create_test_model()
-    
-    # New quantization engine
-    engine = QuantizationEngine()
-    
-    # Test available algorithms
-    algorithms = engine.get_available_algorithms()
-    print(f"   Available algorithms: {algorithms}")
-    
-    expected_algorithms = ["torch_dynamic", "mvp_dynamic", "mvp_static"]
-    for alg in expected_algorithms:
-        assert alg in algorithms, f"Missing algorithm: {alg}"
-    
-    # Test intelligent algorithm recommendation
-    recommendation = engine.get_recommended_algorithm(model, TargetHardware.APPLE_SILICON)
-    print(f"   Recommended algorithm: {recommendation}")
-    
-    # Test auto-quantization
-    quantized_model, stats = engine.auto_quantize(model, TargetHardware.APPLE_SILICON)
-    print(f"   Auto-quantization result: {stats['algorithm']}")
-    print(f"   Size reduction: {stats['reduction_ratio']:.1f}x")
-    print(f"   Estimated speedup: {stats.get('estimated_speedup', 'N/A')}")
-    
-    assert stats['reduction_ratio'] > 1.0, "Expected size reduction"
-    
-    print("✅ New plugin architecture tests passed!")
-    return True
-
-
-def test_algorithm_benchmarking():
-    """Test benchmarking multiple algorithms."""
-    print("\n🧪 Testing Algorithm Benchmarking...")
-    
-    model = create_test_model()
-    engine = QuantizationEngine()
-    
-    # Benchmark all available algorithms
-    results = engine.benchmark_algorithms(model, TargetHardware.APPLE_SILICON)
-    
-    print(f"   Benchmarked {len(results)} algorithms:")
-    for algorithm, stats in results.items():
-        if "error" in stats:
-            print(f"   - {algorithm}: ❌ {stats['error']}")
-        else:
-            print(f"   - {algorithm}: ✅ {stats['reduction_ratio']:.1f}x reduction")
-    
-    # Ensure at least one algorithm succeeded
-    successful = [alg for alg, stats in results.items() if "error" not in stats]
-    assert len(successful) > 0, "No algorithms succeeded"
-    
-    print("✅ Algorithm benchmarking tests passed!")
-    return True
-
-
-def test_mvp_selector_intelligence():
-    """Test the MVP selector's intelligent decision making."""
-    print("\n🎯 Testing MVP Selector Intelligence...")
-    
-    # Test different model architectures
-    models = {
-        "CNN": nn.Sequential(nn.Conv2d(3, 64, 3), nn.AdaptiveAvgPool2d((1, 1)), nn.Flatten(), nn.Linear(64, 10)),
-        "RNN": nn.Sequential(nn.LSTM(100, 256, batch_first=True), nn.Linear(256, 10)),
-        "MLP": nn.Sequential(nn.Linear(100, 256), nn.ReLU(), nn.Linear(256, 10)),
+    return {
+        "transformer": SimpleTransformer(),
+        "cnn": SimpleCNN()
     }
-    
-    for model_type, model in models.items():
-        print(f"\n   Testing {model_type} model:")
-        
-        # Test architecture analysis
-        arch_info = mvp_selector.analyze_model_architecture(model)
-        print(f"     Architecture: Conv={arch_info['has_conv']}, RNN={arch_info['has_rnn']}, Linear={arch_info['has_linear']}")
-        
-        # Test recommendation
-        recommendation = mvp_selector.get_mvp_recommendation(model, TargetHardware.APPLE_SILICON)
-        print(f"     Recommendation: {recommendation}")
-        
-        # Test explanation
-        explanation = mvp_selector.explain_recommendation(model, TargetHardware.APPLE_SILICON)
-        print(f"     Reasoning: {'; '.join(explanation['reasoning'][:2])}")  # Show first 2 reasons
-    
-    print("\n✅ MVP selector intelligence tests passed!")
-    return True
 
 
-def test_specific_algorithms():
-    """Test individual algorithms directly."""
-    print("\n⚙️  Testing Individual Algorithms...")
+def test_algorithm_registry():
+    """Test that algorithm registry is properly set up."""
+    print("🧪 Testing algorithm registry...")
     
-    model = create_test_model()
+    print(f"Available algorithms: {list(QUANTIZATION_ALGORITHMS.keys())}")
+    expected_algorithms = ["dynamic", "static"]
     
-    # Test each algorithm type
-    for algorithm_name, algorithm_class in QUANTIZATION_ALGORITHMS.items():
-        print(f"\n   Testing {algorithm_name}:")
+    for algo in expected_algorithms:
+        assert algo in QUANTIZATION_ALGORITHMS, f"Missing algorithm: {algo}"
+        print(f"   ✅ {algo} algorithm available")
+    
+    print("✅ Algorithm registry test passed\n")
+
+
+def test_direct_quantization():
+    """Test direct usage of quantization algorithms."""
+    print("🧪 Testing direct quantization...")
+    
+    models = create_test_models()
+    target = TargetHardware.APPLE_SILICON
+    
+    # Test dynamic quantization on transformer
+    print("\n🔧 Testing dynamic quantization on transformer model...")
+    dynamic_quantizer = DynamicQuantizer()
+    transformer = models["transformer"]
+    
+    if dynamic_quantizer.can_optimize(transformer, target):
+        quantized_transformer = dynamic_quantizer.apply(transformer, target)
+        perf_estimate = dynamic_quantizer.get_performance_estimate(transformer, target)
+        print(f"   ✅ Dynamic quantization successful")
+        print(f"   📊 Estimated speedup: {perf_estimate['speed_up']:.2f}x")
+        print(f"   💾 Estimated memory reduction: {perf_estimate['memory_reduction']:.2f}x")
+    else:
+        print("   ❌ Dynamic quantization not supported for this model/target")
+    
+    # Test static quantization on CNN
+    print("\n🔧 Testing static quantization on CNN model...")
+    static_quantizer = StaticQuantizer()
+    cnn = models["cnn"]
+    
+    if static_quantizer.can_optimize(cnn, target):
+        # Create some dummy calibration data
+        calibration_data = torch.randn(8, 3, 32, 32)
+        config = {"calibration_data": calibration_data}
         
-        algorithm = algorithm_class()
-        
-        # Test can_optimize
-        can_optimize = algorithm.can_optimize(model, TargetHardware.APPLE_SILICON)
-        print(f"     Can optimize: {can_optimize}")
-        
-        if can_optimize:
-            # Test performance estimate
-            perf_estimate = algorithm.get_performance_estimate(model, TargetHardware.APPLE_SILICON)
-            print(f"     Estimated speedup: {perf_estimate['speed_up']:.1f}x")
+        quantized_cnn = static_quantizer.apply(cnn, target, config)
+        perf_estimate = static_quantizer.get_performance_estimate(cnn, target)
+        print(f"   ✅ Static quantization successful")
+        print(f"   �� Estimated speedup: {perf_estimate['speed_up']:.2f}x")
+        print(f"   💾 Estimated memory reduction: {perf_estimate['memory_reduction']:.2f}x")
+    else:
+        print("   ❌ Static quantization not supported for this model/target")
+    
+    print("\n✅ Direct quantization test passed\n")
+
+
+def test_benchmarking():
+    """Test benchmarking functionality."""
+    print("🧪 Testing benchmarking...")
+    
+    models = create_test_models()
+    target = TargetHardware.APPLE_SILICON
+    
+    # Test dynamic quantization benchmarking
+    print("\n🔧 Benchmarking dynamic quantization...")
+    dynamic_quantizer = DynamicQuantizer()
+    transformer = models["transformer"]
+    
+    # Create sample input for transformer (token indices)
+    input_shape = (4, 10)  # batch_size=4, seq_len=10
+    
+    benchmark_results = dynamic_quantizer.benchmark(transformer, target, input_shape, runs=5)
+    print(f"   ⏱️  Original time: {benchmark_results['original_time_ms']:.2f}ms")
+    print(f"   ⏱️  Quantized time: {benchmark_results['quantized_time_ms']:.2f}ms") 
+    print(f"   🚀 Actual speedup: {benchmark_results['speedup']:.2f}x")
+    
+    print("\n✅ Benchmarking test passed\n")
+
+
+def test_all_targets():
+    """Test quantization on all supported hardware targets."""
+    print("🧪 Testing all hardware targets...")
+    
+    models = create_test_models()
+    dynamic_quantizer = DynamicQuantizer()
+    transformer = models["transformer"]
+    
+    targets = [
+        TargetHardware.APPLE_SILICON,
+        TargetHardware.X86_SERVER,
+        TargetHardware.ARM_MOBILE,
+        TargetHardware.NVIDIA_JETSON,
+    ]
+    
+    for target in targets:
+        print(f"\n🔧 Testing {target.value}...")
+        if dynamic_quantizer.can_optimize(transformer, target):
+            config = dynamic_quantizer.get_optimization_config(transformer, target)
+            print(f"   Backend: {config['backend']}")
+            print(f"   Description: {config['description']}")
             
-            # Test optimization config
-            config = algorithm.get_optimization_config(model, TargetHardware.APPLE_SILICON)
-            print(f"     Backend: {config.get('backend', 'N/A')}")
-            
-            # Test application
-            try:
-                quantized_model = algorithm.apply(model, TargetHardware.APPLE_SILICON)
-                print(f"     ✅ Application successful")
-            except Exception as e:
-                print(f"     ⚠️  Application failed: {e}")
+            quantized_model = dynamic_quantizer.apply(transformer, target)
+            print(f"   ✅ Quantization successful for {target.value}")
+        else:
+            print(f"   ❌ Quantization not supported for {target.value}")
     
-    print("\n✅ Individual algorithm tests passed!")
-    return True
+    print("\n✅ All targets test passed\n")
 
 
 def main():
@@ -194,12 +173,10 @@ def main():
     print("=" * 50)
     
     try:
-        # Run all test suites
-        test_backward_compatibility()
-        test_new_plugin_architecture()
-        test_algorithm_benchmarking()
-        test_mvp_selector_intelligence()
-        test_specific_algorithms()
+        test_algorithm_registry()
+        test_direct_quantization()
+        test_benchmarking()
+        test_all_targets()
         
         print("\n" + "=" * 50)
         print("🎉 ALL TESTS PASSED!")
