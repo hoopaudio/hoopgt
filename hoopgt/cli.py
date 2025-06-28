@@ -8,8 +8,8 @@ from .engine import OptimizationEngine
 from . import __version__
 
 console = Console()
-app = typer.Typer(
-    name="hoopgt",
+    app = typer.Typer(
+        name="hoopgt",
     help="🏀 HoopGT SDK - Model Optimization Platform",
     rich_markup_mode="rich",
 )
@@ -28,8 +28,8 @@ def main(
         is_eager=True,
         help="Show version and exit.",
     ),
-):
-    """
+    ):
+        """
     HoopGT SDK - Model Optimization Platform
     """
     if version:
@@ -38,7 +38,7 @@ def main(
 
 @app.command()
 def optimize(
-    model_path: str = typer.Argument(..., help="Path to the model to optimize"),
+        model_path: str = typer.Argument(..., help="Path to the model to optimize"),
     output: Optional[str] = typer.Option(
         None, "--output", "-o", help="Output path for optimized model"
     ),
@@ -51,8 +51,8 @@ def optimize(
     quantize: bool = typer.Option(
         False, "--quantize", "-q", help="Enable quantization optimization"
     ),
-):
-    """
+    ):
+        """
     Optimize a model for a specific target hardware.
     """
     rprint(f"[bold green]🏀 HoopGT Optimizer[/bold green]")
@@ -108,13 +108,13 @@ def optimize(
 
         console.print(results_table)
         rprint("\n[bold green]Optimization complete![/bold green]")
-
-    except Exception as e:
+            
+        except Exception as e:
         rprint(f"\n[bold red]An error occurred during optimization:[/bold red]")
         rprint(f"[red]{e}[/red]")
         raise typer.Exit(code=1)
 
-
+    
 @app.command()
 def deploy(
     model_name: str = typer.Argument(..., help="Name of the model to deploy"),
@@ -122,8 +122,8 @@ def deploy(
     target: TargetHardware = typer.Option(
         ..., "--target", "-t", help="Target hardware for deployment"
     ),
-):
-    """
+    ):
+        """
     Deploy a model (placeholder for your implementation).
     """
     rprint(f"[bold green]🏀 HoopGT Deployer[/bold green]")
@@ -138,7 +138,7 @@ def deploy(
 
 @app.command(name="list")
 def list_models():
-    """
+        """
     List available models (placeholder for your implementation).
     """
     rprint("[bold green]🏀 Available Models[/bold green]")
